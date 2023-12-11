@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from .mixin import TestMixinAuthorNoteReader, TestMixinCreatNoteConstant
+from notes.forms import NoteForm
 
 User = get_user_model()
 
@@ -46,6 +47,4 @@ class TestContextNote(TestMixinCreatNoteConstant, TestMixinAuthorNoteReader):
                 url = reverse(url, kwargs=kwargs)
                 response = self.author_client.get(url)
                 self.assertIn('form', response.context)
-                # self.assertIsInstance() Еще стоит проверить тип
-                # формы assertIsInstance
-                # https://www.geeksforgeeks.org/python-unittest-assertisinstance-function/
+                self.assertIsInstance(response.context['form'], NoteForm)

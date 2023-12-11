@@ -6,14 +6,14 @@ from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
 from pytest_django.asserts import assertFormError, assertRedirects
 
-from .utils import PK, URL
+from .utils import PK, URL, FORM_DATA
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'name, pk',
+    'name, pk, form_data',
     (
-        (URL['detail'], PK),
+        (URL['detail'], PK, FORM_DATA),
     )
 )
 def test_anonymous_user_cant_create_comment(client, name, pk, news, form_data):
@@ -26,9 +26,9 @@ def test_anonymous_user_cant_create_comment(client, name, pk, news, form_data):
 
 
 @pytest.mark.parametrize(
-    'name, pk',
+    'name, pk, form_data',
     (
-        (URL['detail'], PK),
+        (URL['detail'], PK, FORM_DATA),
     )
 )
 def test_user_can_create_comment(author_client, news, name, pk, form_data):
@@ -38,7 +38,7 @@ def test_user_can_create_comment(author_client, news, name, pk, form_data):
     response = author_client.post(url, form_data)
     comment_count = Comment.objects.count()
     assert comment_count == expected_comment_count
-    comment = Comment.objects.get()
+    comment = Comment.objects.get(id=pk[0])
     assertRedirects(response, f'{url}#comments')
     assert comment.text == form_data['text']
 
@@ -79,9 +79,9 @@ def test_user_cant_delete_comment_of_another_user(
 
 
 @pytest.mark.parametrize(
-    'name, name_news, pk',
+    'name, name_news, pk, form_data',
     (
-        (URL['edit'], URL['detail'], PK),
+        (URL['edit'], URL['detail'], PK, FORM_DATA),
     )
 )
 def test_author_can_edit_comment(
@@ -97,9 +97,9 @@ def test_author_can_edit_comment(
 
 
 @pytest.mark.parametrize(
-    'name, pk',
+    'name, pk, form_data',
     (
-        (URL['edit'], PK),
+        (URL['edit'], PK, FORM_DATA),
     )
 )
 def test_user_cant_edit_comment_of_another_user(

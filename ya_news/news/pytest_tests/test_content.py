@@ -67,5 +67,4 @@ def test_comment_order(client, news, name, pk, comments_list):
     assert 'news' in response.context
     news = response.context['news']
     all_comments = news.comment_set.all()
-    # assert all_comments[0].created < all_comments[1].created
-    assert all_comments[0].created < all_comments[1].created
+    assert list(all_comments) == sorted(all_comments, key=lambda x: x.created)

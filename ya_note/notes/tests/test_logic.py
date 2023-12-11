@@ -18,16 +18,17 @@ class TestNoteCreation(TestMixinCreatNoteConstant, TestMixinNoteCreate):
         """Пользователь может создать заметку."""
         response = self.author_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, self.success_url)
-        notes = Note.objects.get()
+        notes = Note.objects.get(slug=self.NOTE_SLUG)
         self.assertEqual(notes.title, self.NOTE_TITLE)
         self.assertEqual(notes.text, self.NOTE_TEXT)
         self.assertEqual(notes.slug, self.NOTE_SLUG)
 
     def test_anonymous_cant_create_note(self):
         """Анонимный пользователь не может создать заметку."""
+        note_count_current = Note.objects.count()
         self.client.post(self.url, data=self.form_data)
         note_count = Note.objects.count()
-        self.assertEqual(note_count, 0)
+        self.assertEqual(note_count_current, note_count)
 
     def test_unique_slug_field(self):
         """Проверка уникальности slug."""
@@ -51,7 +52,7 @@ class TestNoteCreation(TestMixinCreatNoteConstant, TestMixinNoteCreate):
             self.success_url
         )
         self.author_client.post(self.url, data=self.form_data)
-        note = Note.objects.get()
+        note = Note.objects.get(slug=expected_slug)
         self.assertEqual(expected_slug, note.slug)
 
 
@@ -62,17 +63,19 @@ class TestNoteEditDelete(TestMixinCreatNoteConstant,
 
     def test_author_can_delete_note(self):
         """Автор может удалить свою заметку."""
+        note_count_current = Note.objects.count()
         response = self.author_client.delete(self.url_delete)
         self.assertRedirects(response, self.success_url)
         note_count = Note.objects.count()
-        self.assertEqual(note_count, 0)
+        self.assertEqual(note_count_current - 1, note_count)
 
     def test_user_cant_delete_note_of_another_user(self):
         """Пользователь не может удалить чужую заметку."""
+        note_count_current = Note.objects.count()
         response = self.reader_client.delete(self.url_delete)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note_count = Note.objects.count()
-        self.assertEqual(note_count, 1)
+        self.assertEqual(note_count_current, note_count)
 
     def test_author_can_edit_note(self):
         """Автор может изменить свою заметку."""

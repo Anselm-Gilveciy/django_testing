@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from django.conf import settings
@@ -46,7 +46,7 @@ def comment(author, news):
 @pytest.fixture
 def news_list():
     """Список новостей."""
-    today = datetime.today()
+    today = timezone.now()
     news_list = News.objects.bulk_create(
         News(
             title=f'Заголовок новости {index}',
@@ -70,11 +70,3 @@ def comments_list(author, news):
         comment.created = timezone.now() + timedelta(days=index)
         comment.save()
     return comments_list
-
-
-@pytest.fixture
-def form_data():
-    """Форма с данными нового комментария.."""
-    return {
-        'text': 'Новый комментарий'
-    }
