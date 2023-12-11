@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
@@ -19,7 +18,7 @@ class TestContextNote(TestMixinCreatNoteConstant, TestMixinAuthorNoteReader):
         response = self.author_client.get(url)
         object_list = response.context['object_list']
 
-        self.assertTrue((self.note in object_list), True)
+        self.assertTrue(self.note in object_list)
 
     def test_list_notes_user_doesnt_appear_notes_another(self):
         """
@@ -47,3 +46,6 @@ class TestContextNote(TestMixinCreatNoteConstant, TestMixinAuthorNoteReader):
                 url = reverse(url, kwargs=kwargs)
                 response = self.author_client.get(url)
                 self.assertIn('form', response.context)
+                # self.assertIsInstance() Еще стоит проверить тип
+                # формы assertIsInstance
+                # https://www.geeksforgeeks.org/python-unittest-assertisinstance-function/

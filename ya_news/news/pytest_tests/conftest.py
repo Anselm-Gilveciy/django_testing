@@ -22,11 +22,10 @@ def author_client(author, client):
 @pytest.fixture
 def news():
     """Данные новости."""
-    news = News.objects.create(
+    return News.objects.create(
         title='Заголовок новости',
         text='Текст новости'
     )
-    return news
 
 
 @pytest.fixture
@@ -37,12 +36,11 @@ def pk_news(news):
 @pytest.fixture
 def comment(author, news):
     """Данные комментария."""
-    comment = Comment.objects.create(
+    return Comment.objects.create(
         news=news,
         author=author,
         text='Текст комментария'
     )
-    return comment
 
 
 @pytest.fixture
