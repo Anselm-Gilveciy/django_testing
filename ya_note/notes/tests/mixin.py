@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
+
 from notes.models import Note
 
 User = get_user_model()
@@ -84,3 +85,19 @@ class TestMixinNoteEditDelete(TestMixinAuthorNoteReader):
             'title': cls.NEW_NOTE_TITLE,
             'text': cls.NEW_NOTE_TEXT,
             'slug': cls.NEW_NOTE_SLUG}
+
+
+class TestCheck(TestCase):
+    """Миксин для проверки корректности заметки."""
+
+    def check(self, notes, title, text, slug):
+        data = (notes.title, notes.text, notes.slug)
+        const_data = (title, text, slug)
+        for db_value, value in zip(
+            data, const_data
+        ):
+            with self.subTest(db_value=db_value, value=value):
+                self.assertEqual(
+                    db_value,
+                    value
+                )

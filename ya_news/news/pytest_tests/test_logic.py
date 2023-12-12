@@ -1,12 +1,15 @@
 from http import HTTPStatus
 
-import pytest
 from django.urls import reverse
+
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
+
+import pytest
+
 from pytest_django.asserts import assertFormError, assertRedirects
 
-from .utils import PK, URL, FORM_DATA
+from .utils import FORM_DATA, PK, URL
 
 
 @pytest.mark.django_db
@@ -38,7 +41,7 @@ def test_user_can_create_comment(author_client, news, name, pk, form_data):
     response = author_client.post(url, form_data)
     comment_count = Comment.objects.count()
     assert comment_count == expected_comment_count
-    comment = Comment.objects.get(id=pk[0])
+    comment = Comment.objects.last()
     assertRedirects(response, f'{url}#comments')
     assert comment.text == form_data['text']
 

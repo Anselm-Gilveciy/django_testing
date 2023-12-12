@@ -1,27 +1,29 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
+
 from notes.forms import WARNING
 from notes.models import Note
+
 from pytils.translit import slugify
 
-from .mixin import (TestMixinCreatNoteConstant, TestMixinNoteCreate,
+from .mixin import (TestCheck, TestMixinCreatNoteConstant, TestMixinNoteCreate,
                     TestMixinNoteEditDelete, TestMixinUpdateNoteConstant)
 
 User = get_user_model()
 
 
-class TestNoteCreation(TestMixinCreatNoteConstant, TestMixinNoteCreate):
+class TestNoteCreation(
+    TestMixinCreatNoteConstant, TestCheck, TestMixinNoteCreate
+):
     """Проверки создания заметок."""
 
     def test_user_can_create_note(self):
         """Пользователь может создать заметку."""
         response = self.author_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, self.success_url)
-        notes = Note.objects.get(slug=self.NOTE_SLUG)
-        self.assertEqual(notes.title, self.NOTE_TITLE)
-        self.assertEqual(notes.text, self.NOTE_TEXT)
-        self.assertEqual(notes.slug, self.NOTE_SLUG)
+        notes = Note.objects.last()
+        self.check(notes, self.NOTE_TITLE, self.NOTE_TEXT, self.NOTE_SLUG)
 
     def test_anonymous_cant_create_note(self):
         """Анонимный пользователь не может создать заметку."""
@@ -52,11 +54,12 @@ class TestNoteCreation(TestMixinCreatNoteConstant, TestMixinNoteCreate):
             self.success_url
         )
         self.author_client.post(self.url, data=self.form_data)
-        note = Note.objects.get(slug=expected_slug)
+        note = Note.objects.last()
         self.assertEqual(expected_slug, note.slug)
 
 
 class TestNoteEditDelete(TestMixinCreatNoteConstant,
+                         TestCheck,
                          TestMixinUpdateNoteConstant,
                          TestMixinNoteEditDelete):
     """Проверки редактирования и удаления заметок."""
@@ -82,15 +85,18 @@ class TestNoteEditDelete(TestMixinCreatNoteConstant,
         response = self.author_client.post(self.url_edit, data=self.form_data)
         self.assertRedirects(response, self.success_url)
         self.note.refresh_from_db()
-        self.assertEqual(self.note.title, self.NEW_NOTE_TITLE)
-        self.assertEqual(self.note.text, self.NEW_NOTE_TEXT)
-        self.assertEqual(self.note.slug, self.NEW_NOTE_SLUG)
+        notes = Note.objects.last()
+        self.check(
+            notes,
+            self.NEW_NOTE_TITLE,
+            self.NEW_NOTE_TEXT,
+            self.NEW_NOTE_SLUG
+        )
 
     def test_user_cant_edit_note_of_another_user(self):
         """Пользователь не может изменить чужую заметку."""
         response = self.reader_client.post(self.url_edit, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.note.refresh_from_db()
-        self.assertEqual(self.note.title, self.NOTE_TITLE)
-        self.assertEqual(self.note.text, self.NOTE_TEXT)
-        self.assertEqual(self.note.slug, self.NOTE_SLUG)
+        notes = Note.objects.last()
+        self.check(notes, self.NOTE_TITLE, self.NOTE_TEXT, self.NOTE_SLUG)
