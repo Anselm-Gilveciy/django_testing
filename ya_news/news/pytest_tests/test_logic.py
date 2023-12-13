@@ -1,14 +1,12 @@
 from http import HTTPStatus
 
 from django.urls import reverse
-
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
 
 import pytest
 
 from pytest_django.asserts import assertFormError, assertRedirects
-
 from .utils import FORM_DATA, PK, URL
 
 

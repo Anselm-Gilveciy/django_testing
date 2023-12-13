@@ -1,8 +1,8 @@
 from datetime import timedelta
 
+from django.test import Client
 from django.conf import settings
 from django.utils import timezone
-
 from news.models import Comment, News
 
 import pytest
@@ -17,9 +17,9 @@ def author(django_user_model):
 @pytest.fixture
 def author_client(author, client):
     """Залогиненный автор комментария."""
-    my_client = client
-    my_client.force_login(author)
-    return my_client
+    client = Client()
+    client.force_login(author)
+    return client
 
 
 @pytest.fixture

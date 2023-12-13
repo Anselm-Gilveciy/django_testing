@@ -1,10 +1,8 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-
 from notes.forms import WARNING
 from notes.models import Note
-
 from pytils.translit import slugify
 
 from .mixin import (TestCheck, TestMixinCreatNoteConstant, TestMixinNoteCreate,
@@ -22,8 +20,8 @@ class TestNoteCreation(
         """Пользователь может создать заметку."""
         response = self.author_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, self.success_url)
-        notes = Note.objects.last()
-        self.check(notes, self.NOTE_TITLE, self.NOTE_TEXT, self.NOTE_SLUG)
+        note = Note.objects.last()
+        self.check(note, self.NOTE_TITLE, self.NOTE_TEXT, self.NOTE_SLUG)
 
     def test_anonymous_cant_create_note(self):
         """Анонимный пользователь не может создать заметку."""
@@ -85,9 +83,9 @@ class TestNoteEditDelete(TestMixinCreatNoteConstant,
         response = self.author_client.post(self.url_edit, data=self.form_data)
         self.assertRedirects(response, self.success_url)
         self.note.refresh_from_db()
-        notes = Note.objects.last()
+        note = Note.objects.last()
         self.check(
-            notes,
+            note,
             self.NEW_NOTE_TITLE,
             self.NEW_NOTE_TEXT,
             self.NEW_NOTE_SLUG
@@ -98,5 +96,4 @@ class TestNoteEditDelete(TestMixinCreatNoteConstant,
         response = self.reader_client.post(self.url_edit, data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.note.refresh_from_db()
-        notes = Note.objects.last()
-        self.check(notes, self.NOTE_TITLE, self.NOTE_TEXT, self.NOTE_SLUG)
+        self.check(self.note, self.NOTE_TITLE, self.NOTE_TEXT, self.NOTE_SLUG)

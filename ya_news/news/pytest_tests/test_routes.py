@@ -1,11 +1,9 @@
 from http import HTTPStatus
 
-from django.urls import reverse
-
 import pytest
 
+from django.urls import reverse
 from pytest_django.asserts import assertRedirects
-
 from .utils import ADMIN, AUTHOR, CLIENT, PK, URL
 
 
