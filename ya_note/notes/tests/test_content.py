@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from notes.forms import NoteForm
-
 from .mixin import TestMixinAuthorNoteReader, TestMixinCreatNoteConstant
 
 User = get_user_model()
